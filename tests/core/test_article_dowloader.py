@@ -107,3 +107,13 @@ def test_download_pdf_not_pdf_content_type(mock_get):
         str(context.value)
         == "Downloaded resource is not a PDF file. Content type: text/html"
     )
+
+
+@mock.patch("requests.get")
+def test_download_unexpected_error(mock_get):
+    mock_get.side_effect = Exception("Something went wrong")
+    url = "http://example.com/unexpected-error"
+    with pytest.raises(DownloadError) as context:
+        download_pdf(url)
+    assert f"Unexpected error while downloading URL: {url}" in str(context.value)
+    assert "Something went wrong" in str(context.value)
