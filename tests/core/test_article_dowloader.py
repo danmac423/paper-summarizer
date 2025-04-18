@@ -21,11 +21,17 @@ test_urls = [
 
 @pytest.mark.parametrize("url,expected", test_urls)
 def test_is_url_valid(url, expected):
+    """
+    Test the URL validation function.
+    """
     assert is_url_valid(url) == expected
 
 
 @mock.patch("requests.get")
 def test_dowload_pdf_valid(mock_get):
+    """
+    Test the download_pdf function with a valid URL.
+    """
     mock_response = mock.Mock()
     mock_response.status_code = 200
     mock_response.headers = {"Content-Type": "application/pdf"}
@@ -42,6 +48,9 @@ def test_dowload_pdf_valid(mock_get):
 
 @mock.patch("requests.get")
 def test_download_pdf_invalid_url(mock_get):
+    """
+    Test the download_pdf function with an invalid URL.
+    """
     url = "invalid-url"
     with pytest.raises(InvalidURLError, match="Provided URL is invalid: invalid-url"):
         download_pdf(url)
@@ -50,6 +59,9 @@ def test_download_pdf_invalid_url(mock_get):
 
 @mock.patch("requests.get")
 def test_download_pdf_connection_error(mock_get):
+    """
+    Test the download_pdf function when a connection error occurs.
+    """
     mock_get.side_effect = requests.exceptions.ConnectionError(
         "Connection error occurred"
     )
@@ -65,6 +77,9 @@ def test_download_pdf_connection_error(mock_get):
 
 @mock.patch("requests.get")
 def test_download_pdf_http_error_not_found(mock_get):
+    """
+    Test the download_pdf function when a 404 HTTP error occurs.
+    """
     mock_response = mock.Mock()
     mock_response.status_code = 404
     mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError(
@@ -80,6 +95,9 @@ def test_download_pdf_http_error_not_found(mock_get):
 
 @mock.patch("requests.get")
 def test_download_pdf_server_error(mock_get):
+    """
+    Test the download_pdf function when a 500 HTTP error occurs.
+    """
     mock_response = mock.Mock()
     mock_response.status_code = 500
     mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError(
@@ -95,6 +113,9 @@ def test_download_pdf_server_error(mock_get):
 
 @mock.patch("requests.get")
 def test_download_pdf_not_pdf_content_type(mock_get):
+    """
+    Test the download_pdf function when the content type is not PDF.
+    """
     mock_response = mock.Mock()
     mock_response.status_code = 200
     mock_response.headers = {"Content-Type": "text/html"}
@@ -111,6 +132,9 @@ def test_download_pdf_not_pdf_content_type(mock_get):
 
 @mock.patch("requests.get")
 def test_download_unexpected_error(mock_get):
+    """
+    Test the download_pdf function when an unexpected error occurs.
+    """
     mock_get.side_effect = Exception("Something went wrong")
     url = "http://example.com/unexpected-error"
     with pytest.raises(DownloadError) as context:
