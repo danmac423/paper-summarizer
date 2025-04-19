@@ -9,4 +9,5 @@ dependencies = [
     "pytest>=8.3.5",
     "requests>=2.32.3",
     "pymupdf4llm>=0.0.21",
+    "langchain-text-splitters>=0.3.8",
 ]
