@@ -11,7 +11,7 @@ def reset_marker_converter_singleton():
     yield
 
 
-def test_get_marker_converter_initializes_on_first_call(mocker):
+def test_marker_text_extractor_initializes_on_first_call(mocker):
     mock_create_model_dict = mocker.patch("app.core.text_extractor.create_model_dict")
     mock_pdf_converter_class = mocker.patch("app.core.text_extractor.PdfConverter")
 
@@ -22,7 +22,7 @@ def test_get_marker_converter_initializes_on_first_call(mocker):
     )
 
 
-def test_get_marker_converter_returns_same_instance_on_subsequent_calls(mocker):
+def test_marker_text_extractor_returns_same_instance_on_subsequent_calls(mocker):
     mock_create_model_dict = mocker.patch("app.core.text_extractor.create_model_dict")
     mock_pdf_converter_class = mocker.patch("app.core.text_extractor.PdfConverter")
 
@@ -37,7 +37,7 @@ def test_get_marker_converter_returns_same_instance_on_subsequent_calls(mocker):
     assert converter_1 is converter_2 is converter_3
 
 
-def test_get_marker_converter_raises_error_on_marker_initialization_failure(mocker):
+def test_marker_text_extractor_initialization_error(mocker):
     mock_create_model_dict = mocker.patch("app.core.text_extractor.create_model_dict")
     mock_pdf_converter_class = mocker.patch("app.core.text_extractor.PdfConverter")
     marker_initialization_error = RuntimeError("Simulated error during model loading")
