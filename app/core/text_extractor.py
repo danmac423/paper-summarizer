@@ -16,12 +16,15 @@ class MarkerTextExtractor(metaclass=SingletonMeta):
     """
 
     def __init__(self):
-        self.converter = None
-        self._initialize_converter()
+        self.converter = self._initialize_converter()
 
-    def _initialize_converter(self):
+    def _initialize_converter(self) -> PdfConverter:
         """
         Initializes the Marker PDF converter.
+        Returns:
+            PdfConverter: Initialized Marker PDF converter.
+        Raises:
+            TextExtractionError: If there is an error during converter initialization.
         """
         try:
             config = {
@@ -30,16 +33,18 @@ class MarkerTextExtractor(metaclass=SingletonMeta):
             }
             config_parser = ConfigParser(config)
 
-            self.converter = PdfConverter(
+            converter = converter = PdfConverter(
                 artifact_dict=create_model_dict(),
                 config=config_parser.generate_config_dict(),
             )
+
+            return converter
         except Exception as e:
             raise TextExtractionError(
                 f"Failed to initialize Marker PDF converter: {e}"
             ) from e
 
-    def extract_text_from_pdf_file(self, file_path: str):
+    def extract_text_from_pdf_file(self, file_path: str) -> str:
         """
         Extracts text from a PDF file using the Marker PDF converter.
         Args:
