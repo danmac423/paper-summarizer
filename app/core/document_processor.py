@@ -1,42 +1,44 @@
-from langchain_huggingface.embeddings import HuggingFaceEmbeddings
-
-from app.core.exceptions import EmbeddingError
-from app.core.singleton_meta import SingletonMeta
+from langchain_community.vectorstores import FAISS
+from langchain_text_splitters import TextSplitter
 
 
-class EmbeddingModel(metaclass=SingletonMeta):
-    """
-    Singleton class to manage the embedding model.
-    This class ensures that the model is only initialized once,
-    even if called from multiple threads.
-    """
+from app.core.embedding_model import EmbeddingModel
+from app.core.exceptions import VectorStoreError
 
-    def __init__(self, model_name: str = "all-MiniLM-L6-v2", device: str = "cpu"):
+
+class DocumentProcessor:
+    def __init__(self, embedding_model: EmbeddingModel, text_splitter: TextSplitter):
+        self.embedding_model = embedding_model
+        self.text_splitter = text_splitter
+
+    def split_text(self, text: str) -> list[str]:
         """
-        Initializes the embedding model.
+        Splits the text into smaller chunks.
         Args:
-            model_name (str): Name of the embedding model.
-            device (str): Device to run the model on (e.g., "cpu", "cuda").
-        """
-        self.model_name = model_name
-        self.device = device
-        self.model = self._initialize_model()
-
-    def _initialize_model(self) -> HuggingFaceEmbeddings:
-        """
-        Initializes the embedding model.
+            text (str): The text to be split.
         Returns:
-            HuggingFaceEmbeddings: Initialized embedding model.
-        Raises:
-            EmbeddingError: If there is an error during model initialization.
+            list[str]: List of text chunks.
         """
-        model_kwargs = {"device": self.device}
+        return self.text_splitter.split_text(text)
+
+    def create_vector_store(self, chunks: list[str]) -> FAISS:
+        """
+        Creates a FAISS vector store from the text chunks.
+        Args:
+            chunks (list[str]): List of text chunks.
+        Returns:
+            FAISS: FAISS vector store.
+        Raises:
+            VectorStoreError: If there is an error during vector store creation.
+        """
+        if not chunks:
+            raise VectorStoreError("Cannot create vector store from empty chunks.")
         try:
-            model = HuggingFaceEmbeddings(
-                model_name=self.model_name, model_kwargs=model_kwargs
+            vector_store = FAISS.from_texts(
+                texts=chunks, embedding=self.embedding_model.model
             )
-            return model
+            return vector_store
         except Exception as e:
-            raise EmbeddingError(
-                f"Failed to initialize embedding model {self.model_name} on {self.device}: {e}"
+            raise VectorStoreError(
+                f"Error during FAISS vector store creation: {e}"
             ) from e
