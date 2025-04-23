@@ -4,7 +4,7 @@ import pytest
 
 
 @pytest.fixture(autouse=True)
-def reset_marker_converter_singleton():
+def reset_singleton_meta_instances():
     with SingletonMeta._lock:
         SingletonMeta._instances = {}
 
