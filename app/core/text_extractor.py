@@ -1,30 +1,62 @@
-import io
-import pymupdf4llm
-from pymupdf import Document
+import os
+from app.core.exceptions import TextExtractionError
+from app.core.singleton_meta import SingletonMeta
+
+from marker.converters.pdf import PdfConverter
+from marker.models import create_model_dict
+from marker.output import text_from_rendered
+from marker.config.parser import ConfigParser
 
 
-class TextExtractionError(Exception):
-    """Custom exception for text extraction errors."""
-    pass
-
-
-def extract_text_from_pdf(content: bytes) -> str:
+class MarkerTextExtractor(metaclass=SingletonMeta):
     """
-    Extract text from a PDF file and convert it to Markdown format.
-    Args:
-        content (bytes): The PDF file content as bytes.
-    Returns:
-        str: The extracted text in Markdown format.
-    Raises:
-        TextExtractionError: If there is an error during text extraction.
+    Singleton class to manage the Marker PDF converter.
+    This class ensures that the converter is only initialized once,
+    even if called from multiple threads.
     """
-    if not content:
-        raise TextExtractionError("No content provided for extraction.")
-    try:
-        stream = io.BytesIO(content)
-        pdf = Document(stream=stream)
-        md_text = pymupdf4llm.to_markdown(pdf)
-        return md_text
-    except Exception as e:
-        raise TextExtractionError(f"Text extraction error: {e}")
 
+    def __init__(self):
+        self.converter = None
+        self._initialize_converter()
+
+    def _initialize_converter(self):
+        """
+        Initializes the Marker PDF converter.
+        """
+        try:
+            config = {
+                "disable_image_extraction": True,
+                "disable_links": True,
+            }
+            config_parser = ConfigParser(config)
+
+            self.converter = PdfConverter(
+                artifact_dict=create_model_dict(),
+                config=config_parser.generate_config_dict(),
+            )
+        except Exception as e:
+            raise TextExtractionError(
+                f"Failed to initialize Marker PDF converter: {e}"
+            ) from e
+
+    def extract_text_from_pdf_file(self, file_path: str):
+        """
+        Extracts text from a PDF file using the Marker PDF converter.
+        Args:
+            file_path (str): Path to the PDF file.
+        Returns:
+            str: Extracted text from the PDF file.
+        Raises:
+            TextExtractionError: If there is an error during text extraction.
+        """
+        if not os.path.exists(file_path):
+            raise TextExtractionError(f"PDF file not found at: {file_path}")
+
+        try:
+            rendered = self.converter(file_path)
+            text, _, _ = text_from_rendered(rendered)
+            return text
+        except Exception as e:
+            raise TextExtractionError(
+                f"Error during Marker PDF extraction for {file_path}: {e}"
+            ) from e

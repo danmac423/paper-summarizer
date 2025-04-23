@@ -1,45 +1,127 @@
+from app.core.text_extractor import MarkerTextExtractor, TextExtractionError
+from app.core.singleton_meta import SingletonMeta
 import pytest
-from unittest.mock import patch, MagicMock
-from app.core.text_extractor import extract_text_from_pdf, TextExtractionError
 
 
-@patch("app.core.text_extractor.Document")
-@patch("app.core.text_extractor.pymupdf4llm.to_markdown")
-def test_empty_content(MockToMarkdown, MockDocumentInit):
-    """
-    Test the behavior when no content is provided for extraction.
-    """
-    with pytest.raises(
-        TextExtractionError, match="No content provided for extraction."
-    ):
-        extract_text_from_pdf(b"")
+@pytest.fixture(autouse=True)
+def reset_marker_converter_singleton():
+    with SingletonMeta._lock:
+        SingletonMeta._instances = {}
+
+    yield
 
 
-@patch("app.core.text_extractor.Document")
-@patch("app.core.text_extractor.pymupdf4llm.to_markdown")
-def test_text_extraction_error(MockToMarkdown, MockDocumentInit):
-    """
-    Test the behavior when an error occurs during text extraction.
-    """
-    MockDocumentInit.side_effect = Exception("Some error")
-    with pytest.raises(TextExtractionError, match="Text extraction error: Some error"):
-        extract_text_from_pdf(b"valid content")
-    MockDocumentInit.assert_called_once()
-    MockToMarkdown.assert_not_called()
+def test_get_marker_converter_initializes_on_first_call(mocker):
+    mock_create_model_dict = mocker.patch("app.core.text_extractor.create_model_dict")
+    mock_pdf_converter_class = mocker.patch("app.core.text_extractor.PdfConverter")
+
+    MarkerTextExtractor()
+
+    mock_pdf_converter_class.assert_called_once_with(
+        artifact_dict=mock_create_model_dict.return_value, config=mocker.ANY
+    )
 
 
-@patch("app.core.text_extractor.Document")
-@patch("app.core.text_extractor.pymupdf4llm.to_markdown")
-def test_successful_text_extraction(MockToMarkdown, MockDocumentInit):
-    """
-    Test the successful extraction of text from a PDF file.
-    """
-    mock_pdf = MagicMock()
-    MockDocumentInit.return_value = mock_pdf
-    MockToMarkdown.return_value = "extracted text"
+def test_get_marker_converter_returns_same_instance_on_subsequent_calls(mocker):
+    mock_create_model_dict = mocker.patch("app.core.text_extractor.create_model_dict")
+    mock_pdf_converter_class = mocker.patch("app.core.text_extractor.PdfConverter")
 
-    result = extract_text_from_pdf(b"valid content")
+    converter_1 = MarkerTextExtractor()
+    converter_2 = MarkerTextExtractor()
+    converter_3 = MarkerTextExtractor()
 
-    MockDocumentInit.assert_called_once()
-    MockToMarkdown.assert_called_once_with(mock_pdf)
-    assert result == "extracted text"
+    mock_pdf_converter_class.assert_called_once_with(
+        artifact_dict=mock_create_model_dict.return_value, config=mocker.ANY
+    )
+
+    assert converter_1 is converter_2 is converter_3
+
+
+def test_get_marker_converter_raises_error_on_marker_initialization_failure(mocker):
+    mock_create_model_dict = mocker.patch("app.core.text_extractor.create_model_dict")
+    mock_pdf_converter_class = mocker.patch("app.core.text_extractor.PdfConverter")
+    marker_initialization_error = RuntimeError("Simulated error during model loading")
+    mock_pdf_converter_class.side_effect = marker_initialization_error
+
+    with pytest.raises(TextExtractionError) as excinfo:
+        MarkerTextExtractor()
+
+    assert "Failed to initialize Marker PDF converter" in str(excinfo.value)
+    assert excinfo.value.__cause__ is marker_initialization_error
+    mock_pdf_converter_class.assert_called_once_with(
+        artifact_dict=mock_create_model_dict.return_value, config=mocker.ANY
+    )
+    assert not SingletonMeta._instances
+
+
+def test_extract_from_pdf_file_raises_error_if_file_does_not_exist(mocker):
+    mocker.patch("app.core.text_extractor.create_model_dict")
+    mocker.patch("app.core.text_extractor.PdfConverter")
+    mocker.patch("app.core.text_extractor.os.path.exists", return_value=False)
+
+    converter = MarkerTextExtractor()
+
+    with pytest.raises(TextExtractionError) as excinfo:
+        converter.extract_text_from_pdf_file("non_existent_file.pdf")
+
+    assert "PDF file not found at: non_existent_file.pdf" in str(excinfo.value)
+
+
+def test_marker_text_extractor_extract_succeeds_with_valid_file(mocker):
+    mock_os_path_exists = mocker.patch(
+        "app.core.text_extractor.os.path.exists", return_value=True
+    )
+
+    mocker.patch("app.core.text_extractor.create_model_dict")
+    mock_pdf_converter_class = mocker.patch("app.core.text_extractor.PdfConverter")
+
+    mock_converter_instance = mocker.Mock()
+    mock_pdf_converter_class.return_value = mock_converter_instance
+
+    mock_rendered_output = mocker.Mock()
+    mock_converter_instance.return_value = mock_rendered_output
+
+    mock_extracted_text = "Extracted text content from PDF."
+    mock_text_from_rendered = mocker.patch(
+        "app.core.text_extractor.text_from_rendered",
+        return_value=(
+            mock_extracted_text,
+            None,
+            None,
+        ),
+    )
+
+    extractor_instance = MarkerTextExtractor()
+
+    file_path_to_test = "valid_file.pdf"
+    result = extractor_instance.extract_text_from_pdf_file(file_path_to_test)
+
+    mock_os_path_exists.assert_called_once_with(file_path_to_test)
+    mock_converter_instance.assert_called_once_with(file_path_to_test)
+    mock_text_from_rendered.assert_called_once_with(mock_rendered_output)
+
+    assert result == mock_extracted_text
+
+
+def test_marker_text_extractor_extract_raises_error_on_conversion_failure(mocker):
+    mocker.patch("app.core.text_extractor.os.path.exists", return_value=True)
+
+    mocker.patch("app.core.text_extractor.create_model_dict")
+    mock_pdf_converter_class = mocker.patch("app.core.text_extractor.PdfConverter")
+
+    mock_converter_instance = mocker.Mock()
+    mock_pdf_converter_class.return_value = mock_converter_instance
+
+    conversion_error = RuntimeError("Simulated error during PDF conversion")
+    mock_converter_instance.side_effect = conversion_error
+
+    extractor_instance = MarkerTextExtractor()
+
+    file_path_to_test = "valid_file.pdf"
+    with pytest.raises(TextExtractionError) as excinfo:
+        extractor_instance.extract_text_from_pdf_file(file_path_to_test)
+
+    assert f"Error during Marker PDF extraction for {file_path_to_test}" in str(
+        excinfo.value
+    )
+    assert excinfo.value.__cause__ is conversion_error
