@@ -1,35 +1,65 @@
 import streamlit as st
-from app.web_ui.summary import handle_summary_tab  # Import handler for summary tab
+from app.web_ui.state import update_session_state_on_input_change
+from app.web_ui.processing import process_uploaded_file
 
 
 def render_sidebar():
     """Renders the sidebar elements and returns the user inputs."""
     st.sidebar.header("Configuration")
     llm_model_name = st.sidebar.selectbox(
-        "Choose LLM model", ["gemini-2.0-flash-lite"], index=0
+        "Choose LLM model", ["gemini-2.0-flash-lite", "gpt-4.1-mini"]
     )
-    api_key = st.sidebar.text_input("Your API Key", type="password")
+    api_key = st.sidebar.text_input(
+        "Your API Key",
+        key="api_key",
+        type="password",
+    )
     st.sidebar.markdown("---")
     uploaded_file = st.sidebar.file_uploader(
         "Upload a PDF file", type=["pdf"], label_visibility="collapsed"
     )
-    return llm_model_name, api_key, uploaded_file
+
+    update_session_state_on_input_change(uploaded_file, llm_model_name, api_key)
+
+    if st.session_state.processed_article:
+        st.sidebar.success(
+            f"File '{st.session_state.processed_article['name']}' processed successfully"
+        )
+
+    can_process = (
+        uploaded_file is not None and st.session_state.processed_article is None
+    )
+    if can_process:
+        if st.sidebar.button("Process Paper", use_container_width=True, type="primary"):
+            with st.spinner(
+                f"Processing '{uploaded_file.name}'... It may take a while."
+            ):
+                process_uploaded_file(uploaded_file)
+            st.rerun()
 
 
-def display_processing_error():
-    """Displays the processing error if it exists in session state."""
-    if st.session_state.processing_error:
-        st.error(st.session_state.processing_error)
+def render_intro():
+    """Renders the introductory text on the main page."""
+    st.markdown("---")
+    st.markdown(
+        """
+        ## Welcome to the Paper Analyzer!
 
+        This app helps you analyze and extract insights from scientific papers with ease.
+        Simply upload a paper, and let the app process it to provide you with key information,
+        summaries, and more.
 
-def render_main_tabs():
-    """Renders the main content area with tabs for Summary and Q&A."""
-    tab_summary, tab_qa = st.tabs(["Summary", "Q&A (In Progress)"])
+        ### Features:
+        - **Paper Summarization**: Get concise summaries of your papers.
+        - **Q&A**: Ask questions about the paper and get instant answers.
 
-    # Delegate rendering and logic for each tab to specific handlers
-    handle_summary_tab(tab_summary)
-
-    with tab_qa:
-        st.header("Q&A (In Progress)")
-        st.info("This section is under development.")
-        # Add Q&A interface elements here when implemented
+        ### Supported Models:
+        - **Gemini 2.0 Flash Lite**: A lightweight model for efficient processing.
+        
+        ### How to Use:
+        1. Upload a PDF file of the paper you want to analyze.
+        2. Choose the LLM model and enter your API key in the sidebar.
+        3. Click on "Process Paper" to start the analysis.
+        4. Navigate through the tabs to view summaries and ask questions about the paper.
+        """
+    )

@@ -1,10 +1,9 @@
 from langchain.chains.summarize import load_summarize_chain
-from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.documents import Document
+from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.prompts import ChatPromptTemplate
 
-
-from .exceptions import SummaryServiceError, LLMServiceError
+from .exceptions import SummaryServiceError
 
 
 def generate_summary(full_text: str, llm: BaseChatModel, n_words: int = 100) -> str:
@@ -18,11 +17,7 @@ def generate_summary(full_text: str, llm: BaseChatModel, n_words: int = 100) -> 
         str: The generated summary.
     Raises:
         SummaryServiceError: If there is an error during the summary generation process.
-        LLMServiceError: If the LLM model is not initialized.
     """
-    if llm is None:
-        raise LLMServiceError("LLM model is not initialized.")
-
     try:
         combine_prompt_template = """
         Given the following summaries of a scientific article:

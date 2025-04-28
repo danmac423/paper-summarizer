@@ -1,24 +1,27 @@
-import streamlit as st
-import tempfile
 import os
+import tempfile
+from io import BytesIO
+
+import streamlit as st
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-# Import components from your core library
-from app.core.text_extractor import MarkerTextExtractor
 from app.core.document_processor import DocumentProcessor
 from app.core.embedding_model import EmbeddingModel
+from app.core.text_extractor import MarkerTextExtractor
+from config.config import CHUNK_OVERLAP, CHUNK_SIZE, DEVICE, SEPARATORS
 
 
-def process_uploaded_file(uploaded_file, device):
+def process_uploaded_file(uploaded_file: BytesIO):
     """
-    Handles the end-to-end processing of the uploaded PDF file:
-    extraction, embedding, chunking, and vector store creation.
-    Updates session state with results or errors.
+    Processes the uploaded PDF file, extracts text, splits it into chunks,
+    and creates a vector store for further processing.
+    Args:
+        uploaded_file (BytesIO): The uploaded PDF file.
     """
     if uploaded_file is None:
         st.session_state.processing_error = "No file uploaded."
         st.session_state.processed_article = None
-        return  # Exit if no file
+        return
 
     tmp_file_path = None
     try:
@@ -33,15 +36,13 @@ def process_uploaded_file(uploaded_file, device):
         text_extractor = MarkerTextExtractor()
         article_text = text_extractor.extract_text_from_pdf_file(tmp_file_path)
 
-        # Define text splitter and embedding model configuration
-        separators = ["\n\n", "\n", " ", ""]
         text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=500,
-            chunk_overlap=100,
+            chunk_size=CHUNK_SIZE,
+            chunk_overlap=CHUNK_OVERLAP,
             length_function=len,
-            separators=separators,
+            separators=SEPARATORS,
         )
-        embedding_model = EmbeddingModel(device=device)  # Use passed device
+        embedding_model = EmbeddingModel(device=DEVICE)
 
         doc_processor = DocumentProcessor(
             embedding_model=embedding_model, text_splitter=text_splitter
@@ -50,21 +51,18 @@ def process_uploaded_file(uploaded_file, device):
         chunks = doc_processor.split_text(article_text)
         vector_store = doc_processor.create_vector_store(chunks)
 
-        # Store processed results in session state
         st.session_state.processed_article = {
             "name": uploaded_file.name,
             "text": article_text,
             "vector_store": vector_store,
             "chunks": chunks,
         }
-        st.session_state.processing_error = None  # Clear any previous error
+        st.session_state.processing_error = None
 
     except Exception as e:
-        # Catch and store processing errors
-        st.session_state.processing_error = f"Error during processing: {str(e)}"
-        st.session_state.processed_article = None  # Clear processed article on error
+        st.session_state.processing_error = str(e)
+        st.session_state.processed_article = None
 
     finally:
-        # Ensure temporary file is cleaned up
         if tmp_file_path and os.path.exists(tmp_file_path):
             os.remove(tmp_file_path)

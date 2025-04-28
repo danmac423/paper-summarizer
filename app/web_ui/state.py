@@ -1,4 +1,7 @@
 import streamlit as st
+from langchain_community.chat_message_histories import (
+    StreamlitChatMessageHistory,
+)
 
 
 def initialize_session_state():
@@ -18,6 +21,8 @@ def initialize_session_state():
             "llm_model_name": None,
             "api_key": None,
         }
+    if "chat_history" not in st.session_state:
+        st.session_state.chat_history = StreamlitChatMessageHistory(key="chat_history")
 
 
 def update_session_state_on_input_change(uploaded_file, llm_model_name, api_key):
@@ -26,14 +31,17 @@ def update_session_state_on_input_change(uploaded_file, llm_model_name, api_key)
     """
     current_uploaded_filename = uploaded_file.name if uploaded_file else None
 
-    # Reset state if a new file is uploaded
-    if current_uploaded_filename != st.session_state.last_uploaded_filename:
+    if (
+        current_uploaded_filename
+        and current_uploaded_filename != st.session_state.last_uploaded_filename
+    ):
         st.session_state.processed_article = None
         st.session_state.processing_error = None
         st.session_state.last_uploaded_filename = current_uploaded_filename
         st.session_state.summary_text = None
         st.session_state.summary_error = None
-    
+        st.session_state.chat_history.clear()
+
     if (
         st.session_state.llm_config["llm_model_name"] != llm_model_name
         or st.session_state.llm_config["api_key"] != api_key

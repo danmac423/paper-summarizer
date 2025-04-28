@@ -22,8 +22,8 @@ class VectorStoreError(Exception):
     pass
 
 
-class RAGServiceError(Exception):
-    """Custom exception for RAG chain errors."""
+class QAServiceError(Exception):
+    """Custom exception for QA service errors."""
 
     pass
 
