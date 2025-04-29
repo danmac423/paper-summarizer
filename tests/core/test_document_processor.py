@@ -1,11 +1,12 @@
-import pytest
 from unittest.mock import MagicMock
+
+import pytest
+from langchain_community.vectorstores import FAISS
+from langchain_text_splitters import TextSplitter
 
 from app.core.document_processor import DocumentProcessor
 from app.core.embedding_model import EmbeddingModel
 from app.core.exceptions import VectorStoreError
-from langchain_community.vectorstores import FAISS
-from langchain_text_splitters import TextSplitter
 
 
 @pytest.fixture

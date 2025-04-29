@@ -1,7 +1,7 @@
-from app.core.embedding_model import EmbeddingModel, EmbeddingError
-from app.core.singleton_meta import SingletonMeta
-
 import pytest
+
+from app.core.embedding_model import EmbeddingError, EmbeddingModel
+from app.core.singleton_meta import SingletonMeta
 
 
 @pytest.fixture(autouse=True)

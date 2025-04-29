@@ -1,6 +1,7 @@
-from app.core.text_extractor import MarkerTextExtractor, TextExtractionError
-from app.core.singleton_meta import SingletonMeta
 import pytest
+
+from app.core.singleton_meta import SingletonMeta
+from app.core.text_extractor import MarkerTextExtractor, TextExtractionError
 
 
 @pytest.fixture(autouse=True)
