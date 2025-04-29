@@ -24,3 +24,7 @@ dependencies = [
 filterwarnings =[
     "ignore:Support for class-based `config` is deprecated.*:DeprecationWarning:pydantic.*",
 ]
+
+
+[tool.coverage.run]
+source = ["app/core"]
