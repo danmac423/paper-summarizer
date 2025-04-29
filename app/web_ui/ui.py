@@ -55,6 +55,7 @@ def render_intro():
 
         ### Supported Models:
         - **Gemini 2.0 Flash Lite**: A lightweight model for efficient processing.
+        - **GPT-4.1 Mini**: A more powerful model for in-depth analysis.
         
         ### How to Use:
         1. Upload a PDF file of the paper you want to analyze.
