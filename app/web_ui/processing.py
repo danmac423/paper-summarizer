@@ -8,7 +8,13 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from app.core.document_processor import DocumentProcessor
 from app.core.embedding_model import EmbeddingModel
 from app.core.text_extractor import MarkerTextExtractor
-from config.config import CHUNK_OVERLAP, CHUNK_SIZE, DEVICE, SEPARATORS
+from config.config import (
+    CHUNK_OVERLAP,
+    CHUNK_SIZE,
+    DEVICE,
+    EMBEDDING_MODEL_NAME,
+    SEPARATORS,
+)
 
 
 def process_uploaded_file(uploaded_file: BytesIO):
@@ -42,7 +48,7 @@ def process_uploaded_file(uploaded_file: BytesIO):
             length_function=len,
             separators=SEPARATORS,
         )
-        embedding_model = EmbeddingModel(device=DEVICE)
+        embedding_model = EmbeddingModel(device=DEVICE, model_name=EMBEDDING_MODEL_NAME)
 
         doc_processor = DocumentProcessor(
             embedding_model=embedding_model, text_splitter=text_splitter
