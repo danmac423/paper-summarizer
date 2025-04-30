@@ -1,5 +1,6 @@
 import torch
 
+
 torch.classes.__path__ = []
 
 if torch.cuda.is_available():
@@ -14,3 +15,5 @@ CHUNK_SIZE = 1000
 CHUNK_OVERLAP = 200
 
 K_RETRIEVED_DOCS = 3
+
+EMBEDDING_MODEL_NAME = "Alibaba-NLP/gte-multilingual-base"
