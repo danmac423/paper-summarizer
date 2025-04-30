@@ -11,7 +11,9 @@ class EmbeddingModel(metaclass=SingletonMeta):
     even if called from multiple threads.
     """
 
-    def __init__(self, model_name: str = "all-MiniLM-L6-v2", device: str = "cpu"):
+    def __init__(
+        self, model_name: str = "Alibaba-NLP/gte-multilingual-base", device: str = "cpu"
+    ):
         """
         Initializes the embedding model.
         Args:
@@ -30,7 +32,10 @@ class EmbeddingModel(metaclass=SingletonMeta):
         Raises:
             EmbeddingError: If there is an error during model initialization.
         """
-        model_kwargs = {"device": self.device}
+        model_kwargs = {
+            "device": self.device,
+            "trust_remote_code": True,
+        }
         try:
             model = HuggingFaceEmbeddings(
                 model_name=self.model_name, model_kwargs=model_kwargs
