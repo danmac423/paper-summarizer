@@ -6,6 +6,7 @@ from app.core.qa_service import generate_qa_answer
 from app.web_ui.state import initialize_session_state
 from app.web_ui.ui import render_intro, render_sidebar
 
+
 initialize_session_state()
 
 st.set_page_config(page_title="Paper Q&A", layout="wide")
@@ -13,11 +14,11 @@ st.title("📝 Paper Q&A")
 
 render_sidebar()
 
-if not st.session_state.processed_article:
-    render_intro()
-
 if st.session_state.processing_error:
     st.error(st.session_state.processing_error)
+
+if not st.session_state.processed_article:
+    render_intro()
 
 
 if st.session_state.processed_article:

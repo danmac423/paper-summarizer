@@ -2,10 +2,8 @@ import streamlit as st
 
 from app.core.llm_service import get_chat_llm
 from app.core.summary_service import generate_summary
-
-
 from app.web_ui.state import initialize_session_state
-from app.web_ui.ui import render_sidebar, render_intro
+from app.web_ui.ui import render_intro, render_sidebar
 
 
 initialize_session_state()
@@ -15,11 +13,11 @@ st.title("📝 Paper Summarizer")
 
 render_sidebar()
 
-if not st.session_state.processed_article:
-    render_intro()
-
 if st.session_state.processing_error:
     st.error(st.session_state.processing_error)
+
+if not st.session_state.processed_article:
+    render_intro()
 
 
 if st.session_state.processed_article:
