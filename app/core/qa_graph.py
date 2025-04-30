@@ -1,4 +1,4 @@
-from langchain import hub
+from langchain_core.prompts import ChatPromptTemplate
 from langchain.vectorstores import VectorStore
 from langchain_core.documents import Document
 from langchain_core.language_models.chat_models import BaseChatModel
@@ -48,7 +48,16 @@ def generate(state: GraphState, llm: BaseChatModel) -> GraphState:
 
     docs_content = "\n\n".join(doc.page_content for doc in context)
 
-    rag_prompt = hub.pull("rlm/rag-prompt")
+    # rag_prompt = hub.pull("rlm/rag-prompt")
+
+    rag_prompt_template = """
+    You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. 
+    If you don't know the answer, just say that you don't know. Use ten sentences maximum and keep the answer concise.
+    Question: {question}
+    Context: {context}
+    Answer:
+    """
+    rag_prompt = ChatPromptTemplate.from_template(rag_prompt_template)
 
     messages = rag_prompt.invoke({"question": question, "context": docs_content})
     response = llm.invoke(messages)
