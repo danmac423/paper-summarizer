@@ -4,6 +4,7 @@ from io import BytesIO
 
 import streamlit as st
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from transformers import AutoTokenizer
 
 from app.core.document_processor import DocumentProcessor
 from app.core.embedding_model import EmbeddingModel
@@ -42,13 +43,14 @@ def process_uploaded_file(uploaded_file: BytesIO):
         text_extractor = MarkerTextExtractor()
         article_text = text_extractor.extract_text_from_pdf_file(tmp_file_path)
 
-        text_splitter = RecursiveCharacterTextSplitter(
+        embedding_model = EmbeddingModel(device=DEVICE, model_name=EMBEDDING_MODEL_NAME)
+
+        text_splitter = RecursiveCharacterTextSplitter.from_huggingface_tokenizer(
+            tokenizer=AutoTokenizer.from_pretrained(EMBEDDING_MODEL_NAME),
             chunk_size=CHUNK_SIZE,
             chunk_overlap=CHUNK_OVERLAP,
-            length_function=len,
             separators=SEPARATORS,
         )
-        embedding_model = EmbeddingModel(device=DEVICE, model_name=EMBEDDING_MODEL_NAME)
 
         doc_processor = DocumentProcessor(
             embedding_model=embedding_model, text_splitter=text_splitter
