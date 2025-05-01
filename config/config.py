@@ -11,9 +11,9 @@ else:
     DEVICE = "cpu"
 
 SEPARATORS = ["\n\n", "\n", " ", ""]
-CHUNK_SIZE = 1000
-CHUNK_OVERLAP = 200
+CHUNK_SIZE = 512
+CHUNK_OVERLAP = 64
 
-K_RETRIEVED_DOCS = 3
+K_RETRIEVED_DOCS = 4
 
-EMBEDDING_MODEL_NAME = "Alibaba-NLP/gte-multilingual-base"
+EMBEDDING_MODEL_NAME = "Lajavaness/bilingual-embedding-larg"
