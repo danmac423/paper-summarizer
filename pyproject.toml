@@ -18,6 +18,12 @@ dependencies = [
     "pytest-cov>=6.1.1",
     "langgraph>=0.3.34",
     "langchain-openai>=0.3.14",
+    "requests>=2.32.3",
+    "langchain-experimental>=0.3.4",
+    "rouge-score>=0.1.2",
+    "bert-score>=0.3.13",
+    "nltk>=3.9.1",
+    "evaluate>=0.4.3",
 ]
 
 [tool.pytest.ini_options]
