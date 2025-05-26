@@ -1,5 +1,5 @@
-from app.core.summary_service import generate_summary
-from app.core.llm_service import get_chat_llm
+from src.core.services.summary_service import generate_summary
+from src.core.models.llm import get_chat_llm
 
 
 import os
@@ -9,11 +9,11 @@ SUMMARIES_DIRECTORY = "data/processed/summaries"
 
 MODELS = {
     "gpt-4.1-mini": {
-        "api_key": "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",
+        "api_key": "OPENAI_API_KEY",
         "model_name": "gpt-4.1-mini",
     },
     "gemini-2.0-flash-lite": {
-        "api_key": "AIzaSyBFuwCG-bBD_4eeAemguaMk29J0YcFsX2I",
+        "api_key": "GEMINI_API_KEY",
         "model_name": "gemini-2.0-flash-lite",
     },
 }

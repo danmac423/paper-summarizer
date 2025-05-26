@@ -1,6 +1,6 @@
 import os
 
-from app.core.text_extractor import MarkerTextExtractor
+from src.core.data_processing.text_extractor import MarkerTextExtractor
 
 
 RAW_DOCS_DIRECTORY = "data/raw/documents"
