@@ -2,7 +2,7 @@ from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_openai import ChatOpenAI
 
-from app.core.exceptions import LLMServiceError
+from src.core.exceptions import LLMServiceError
 
 
 def get_chat_llm(model_name: str, api_key: str) -> BaseChatModel:

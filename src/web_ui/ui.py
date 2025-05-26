@@ -1,6 +1,6 @@
 import streamlit as st
-from app.web_ui.state import update_session_state_on_input_change
-from app.web_ui.processing import process_uploaded_file
+from src.web_ui.state import update_session_state_on_input_change
+from src.web_ui.processing import process_uploaded_file
 
 
 def render_sidebar():

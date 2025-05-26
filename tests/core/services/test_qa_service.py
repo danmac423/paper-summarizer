@@ -1,6 +1,6 @@
 import pytest
 
-from app.core.qa_service import (
+from src.core.services.qa_service import (
     BaseChatModel,
     QAServiceError,
     VectorStore,
@@ -16,7 +16,7 @@ def mock_dependencies(mocker):
 
     mock_qa_graph = mocker.Mock()
     mock_qa_graph.invoke.return_value = {"answer": "Paris"}
-    mocker.patch("app.core.qa_service.build_qa_graph", return_value=mock_qa_graph)
+    mocker.patch("src.core.services.qa_service.build_qa_graph", return_value=mock_qa_graph)
     return mock_vec, mock_llm, mock_question, mock_qa_graph
 
 

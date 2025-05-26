@@ -1,10 +1,10 @@
 import streamlit as st
 from langchain import hub
 
-from app.core.llm_service import get_chat_llm
-from app.core.qa_service import generate_qa_answer
-from app.web_ui.state import initialize_session_state
-from app.web_ui.ui import render_intro, render_sidebar
+from src.core.models.llm import get_chat_llm
+from src.core.services.qa_service import generate_qa_answer
+from src.web_ui.state import initialize_session_state
+from src.web_ui.ui import render_intro, render_sidebar
 
 
 initialize_session_state()

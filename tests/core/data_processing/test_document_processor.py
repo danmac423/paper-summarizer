@@ -4,9 +4,9 @@ import pytest
 from langchain_community.vectorstores import FAISS
 from langchain_text_splitters import TextSplitter
 
-from app.core.document_processor import DocumentProcessor
-from app.core.embedding_model import EmbeddingModel
-from app.core.exceptions import VectorStoreError
+from src.core.data_processing.document_processor import DocumentProcessor
+from src.core.models.embedding import EmbeddingModel
+from src.core.exceptions import VectorStoreError
 
 
 @pytest.fixture
@@ -53,7 +53,7 @@ def test_document_processor_create_vector_store_succeeds(
 ):
     processor, mock_embedding_model, _ = document_processor_with_mocks
 
-    mock_faiss_from_texts = mocker.patch("app.core.document_processor.FAISS.from_texts")
+    mock_faiss_from_texts = mocker.patch("src.core.data_processing.document_processor.FAISS.from_texts")
 
     mock_vector_store_instance = MagicMock(spec=FAISS)
     mock_faiss_from_texts.return_value = mock_vector_store_instance
@@ -75,7 +75,7 @@ def test_document_processor_create_vector_store_raises_error_on_empty_chunks(
 ):
     processor, _, _ = document_processor_with_mocks
 
-    mock_faiss_from_texts = mocker.patch("app.core.document_processor.FAISS.from_texts")
+    mock_faiss_from_texts = mocker.patch("src.core.data_processing.document_processor.FAISS.from_texts")
 
     empty_chunks = []
 
@@ -94,7 +94,7 @@ def test_document_processor_create_vector_store_raises_error_on_faiss_failure(
 
     faiss_error = RuntimeError("Simulated FAISS creation error")
     mock_faiss_from_texts = mocker.patch(
-        "app.core.document_processor.FAISS.from_texts",
+        "src.core.data_processing.document_processor.FAISS.from_texts",
         side_effect=faiss_error,
     )
 

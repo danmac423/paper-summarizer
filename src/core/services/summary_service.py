@@ -3,7 +3,7 @@ from langchain_core.documents import Document
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.prompts import ChatPromptTemplate
 
-from .exceptions import SummaryServiceError
+from src.core.exceptions import SummaryServiceError
 
 
 def generate_summary(full_text: str, llm: BaseChatModel, n_words: int = 100) -> str:

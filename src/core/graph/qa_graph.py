@@ -6,7 +6,7 @@ from langgraph.graph import END, START, StateGraph
 from langgraph.graph.state import CompiledStateGraph
 from typing_extensions import List, TypedDict
 
-from config.config import K_RETRIEVED_DOCS
+from src.config import K_RETRIEVED_DOCS
 
 
 class GraphState(TypedDict):
@@ -48,8 +48,6 @@ def generate(state: GraphState, llm: BaseChatModel) -> GraphState:
 
     docs_content = "\n\n".join(doc.page_content for doc in context)
 
-    # rag_prompt = hub.pull("rlm/rag-prompt")
-
     rag_prompt_template = """
     You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. 
     If you don't know the answer, just say that you don't know. Use ten sentences maximum and keep the answer concise.
@@ -83,7 +81,7 @@ def build_qa_graph(vector_store: VectorStore, llm: BaseChatModel) -> CompiledSta
     graph_builder.add_node(
         "retrieve", lambda state: retrieve(state, vector_store, K_RETRIEVED_DOCS)
     )
-    graph_builder.add_node("generate", lambda state: generate(state, llm))  # Pass llm
+    graph_builder.add_node("generate", lambda state: generate(state, llm))
 
     graph_builder.add_edge(START, "retrieve")
     graph_builder.add_edge("retrieve", "generate")

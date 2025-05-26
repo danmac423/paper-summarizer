@@ -1,8 +1,8 @@
 from langchain.vectorstores import VectorStore
 from langchain_core.language_models.chat_models import BaseChatModel
 
-from app.core.exceptions import QAServiceError
-from app.core.qa_graph import build_qa_graph
+from src.core.exceptions import QAServiceError
+from src.core.graph.qa_graph import build_qa_graph
 
 
 def generate_qa_answer(vec: VectorStore, llm: BaseChatModel, question: str) -> str:

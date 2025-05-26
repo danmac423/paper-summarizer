@@ -1,7 +1,7 @@
 from langchain_huggingface.embeddings import HuggingFaceEmbeddings
 
-from app.core.exceptions import EmbeddingError
-from app.core.singleton_meta import SingletonMeta
+from src.core.exceptions import EmbeddingError
+from src.core.utils.singleton_meta import SingletonMeta
 
 
 class EmbeddingModel(metaclass=SingletonMeta):

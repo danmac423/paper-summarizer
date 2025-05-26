@@ -1,7 +1,7 @@
 import pytest
 
-from app.core.singleton_meta import SingletonMeta
-from app.core.text_extractor import MarkerTextExtractor, TextExtractionError
+from src.core.utils.singleton_meta import SingletonMeta
+from src.core.data_processing.text_extractor import MarkerTextExtractor, TextExtractionError
 
 
 @pytest.fixture(autouse=True)
@@ -13,8 +13,8 @@ def reset_singleton_meta_instances():
 
 
 def test_marker_text_extractor_initializes_on_first_call(mocker):
-    mock_create_model_dict = mocker.patch("app.core.text_extractor.create_model_dict")
-    mock_pdf_converter_class = mocker.patch("app.core.text_extractor.PdfConverter")
+    mock_create_model_dict = mocker.patch("src.core.data_processing.text_extractor.create_model_dict")
+    mock_pdf_converter_class = mocker.patch("src.core.data_processing.text_extractor.PdfConverter")
 
     MarkerTextExtractor()
 
@@ -24,8 +24,8 @@ def test_marker_text_extractor_initializes_on_first_call(mocker):
 
 
 def test_marker_text_extractor_returns_same_instance_on_subsequent_calls(mocker):
-    mock_create_model_dict = mocker.patch("app.core.text_extractor.create_model_dict")
-    mock_pdf_converter_class = mocker.patch("app.core.text_extractor.PdfConverter")
+    mock_create_model_dict = mocker.patch("src.core.data_processing.text_extractor.create_model_dict")
+    mock_pdf_converter_class = mocker.patch("src.core.data_processing.text_extractor.PdfConverter")
 
     converter_1 = MarkerTextExtractor()
     converter_2 = MarkerTextExtractor()
@@ -39,8 +39,8 @@ def test_marker_text_extractor_returns_same_instance_on_subsequent_calls(mocker)
 
 
 def test_marker_text_extractor_initialization_error(mocker):
-    mock_create_model_dict = mocker.patch("app.core.text_extractor.create_model_dict")
-    mock_pdf_converter_class = mocker.patch("app.core.text_extractor.PdfConverter")
+    mock_create_model_dict = mocker.patch("src.core.data_processing.text_extractor.create_model_dict")
+    mock_pdf_converter_class = mocker.patch("src.core.data_processing.text_extractor.PdfConverter")
     marker_initialization_error = RuntimeError("Simulated error during model loading")
     mock_pdf_converter_class.side_effect = marker_initialization_error
 
@@ -56,9 +56,9 @@ def test_marker_text_extractor_initialization_error(mocker):
 
 
 def test_extract_from_pdf_file_raises_error_if_file_does_not_exist(mocker):
-    mocker.patch("app.core.text_extractor.create_model_dict")
-    mocker.patch("app.core.text_extractor.PdfConverter")
-    mocker.patch("app.core.text_extractor.os.path.exists", return_value=False)
+    mocker.patch("src.core.data_processing.text_extractor.create_model_dict")
+    mocker.patch("src.core.data_processing.text_extractor.PdfConverter")
+    mocker.patch("src.core.data_processing.text_extractor.os.path.exists", return_value=False)
 
     converter = MarkerTextExtractor()
 
@@ -70,11 +70,11 @@ def test_extract_from_pdf_file_raises_error_if_file_does_not_exist(mocker):
 
 def test_marker_text_extractor_extract_succeeds_with_valid_file(mocker):
     mock_os_path_exists = mocker.patch(
-        "app.core.text_extractor.os.path.exists", return_value=True
+        "src.core.data_processing.text_extractor.os.path.exists", return_value=True
     )
 
-    mocker.patch("app.core.text_extractor.create_model_dict")
-    mock_pdf_converter_class = mocker.patch("app.core.text_extractor.PdfConverter")
+    mocker.patch("src.core.data_processing.text_extractor.create_model_dict")
+    mock_pdf_converter_class = mocker.patch("src.core.data_processing.text_extractor.PdfConverter")
 
     mock_converter_instance = mocker.Mock()
     mock_pdf_converter_class.return_value = mock_converter_instance
@@ -84,7 +84,7 @@ def test_marker_text_extractor_extract_succeeds_with_valid_file(mocker):
 
     mock_extracted_text = "Extracted text content from PDF."
     mock_text_from_rendered = mocker.patch(
-        "app.core.text_extractor.text_from_rendered",
+        "src.core.data_processing.text_extractor.text_from_rendered",
         return_value=(
             mock_extracted_text,
             None,
@@ -105,10 +105,10 @@ def test_marker_text_extractor_extract_succeeds_with_valid_file(mocker):
 
 
 def test_marker_text_extractor_extract_raises_error_on_conversion_failure(mocker):
-    mocker.patch("app.core.text_extractor.os.path.exists", return_value=True)
+    mocker.patch("src.core.data_processing.text_extractor.os.path.exists", return_value=True)
 
-    mocker.patch("app.core.text_extractor.create_model_dict")
-    mock_pdf_converter_class = mocker.patch("app.core.text_extractor.PdfConverter")
+    mocker.patch("src.core.data_processing.text_extractor.create_model_dict")
+    mock_pdf_converter_class = mocker.patch("src.core.data_processing.text_extractor.PdfConverter")
 
     mock_converter_instance = mocker.Mock()
     mock_pdf_converter_class.return_value = mock_converter_instance

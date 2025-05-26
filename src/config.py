@@ -16,4 +16,4 @@ CHUNK_OVERLAP = 64
 
 K_RETRIEVED_DOCS = 4
 
-EMBEDDING_MODEL_NAME = "Lajavaness/bilingual-embedding-larg"
+EMBEDDING_MODEL_NAME = "Lajavaness/bilingual-embedding-large"

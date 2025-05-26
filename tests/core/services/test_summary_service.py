@@ -1,6 +1,6 @@
 import pytest
 
-from app.core.summary_service import (
+from src.core.services.summary_service import (
     BaseChatModel,
     Document,
     SummaryServiceError,
@@ -13,7 +13,7 @@ def test_generate_summary_success(mocker):
     mock_chain = mocker.Mock()
     mock_chain.invoke.return_value = {"output_text": "This is a summary."}
     mocker.patch(
-        "app.core.summary_service.load_summarize_chain", return_value=mock_chain
+        "src.core.services.summary_service.load_summarize_chain", return_value=mock_chain
     )
 
     full_text = "This is a long text that needs to be summarized."
@@ -34,7 +34,7 @@ def test_generate_summary_failure(mocker):
     mock_chain = mocker.Mock()
     mock_chain.invoke.side_effect = Exception("Some error")
     mocker.patch(
-        "app.core.summary_service.load_summarize_chain", return_value=mock_chain
+        "src.core.services.summary_service.load_summarize_chain", return_value=mock_chain
     )
 
     full_text = "This is a long text that needs to be summarized."

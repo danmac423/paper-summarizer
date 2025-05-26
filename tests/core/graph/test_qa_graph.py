@@ -1,4 +1,4 @@
-from app.core.qa_graph import (
+from src.core.graph.qa_graph import (
     BaseChatModel,
     CompiledStateGraph,
     Document,
@@ -58,12 +58,11 @@ def test_generate(mocker):
     mock_rag_prompt.invoke.return_value = mock_prompt_messages
 
     mock_hub_pull = mocker.patch(
-        "app.core.qa_graph.hub.pull", return_value=mock_rag_prompt
+        "src.core.graph.qa_graph.ChatPromptTemplate.from_template", return_value=mock_rag_prompt
     )
 
     updated_state = generate(initial_state, mock_llm)
 
-    mock_hub_pull.assert_called_once_with("rlm/rag-prompt")
     mock_rag_prompt.invoke.assert_called_once_with(
         {"question": test_question, "context": expected_docs_content}
     )
