@@ -5,8 +5,8 @@ from langchain_community.vectorstores import FAISS
 from langchain_text_splitters import TextSplitter
 
 from src.core.data_processing.document_processor import DocumentProcessor
-from src.core.models.embedding import EmbeddingModel
 from src.core.exceptions import VectorStoreError
+from src.core.models.embedding import EmbeddingModel
 
 
 @pytest.fixture

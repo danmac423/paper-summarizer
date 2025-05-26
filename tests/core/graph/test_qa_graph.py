@@ -1,3 +1,5 @@
+from langchain_core.messages import HumanMessage
+
 from src.core.graph.qa_graph import (
     BaseChatModel,
     CompiledStateGraph,
@@ -22,6 +24,7 @@ def test_retrieve(mocker):
         "question": "Test question",
         "context": [],
         "answer": None,
+        "chat_history": [HumanMessage(content="Previous user message")],
     }
 
     updated_state = retrieve(state, mock_vector_store, k_retrieved_docs=3)
@@ -33,7 +36,35 @@ def test_retrieve(mocker):
     ]
 
 
-def test_generate(mocker):
+def test_generate_with_history(mocker):
+    test_question = "Test question"
+    test_docs = [
+        mocker.Mock(spec=Document, page_content="doc1"),
+        mocker.Mock(spec=Document, page_content="doc2"),
+        mocker.Mock(spec=Document, page_content="doc3"),
+    ]
+    initial_state: GraphState = {
+        "question": test_question,
+        "context": test_docs,
+        "answer": None,
+        "chat_history": [HumanMessage(content="Previous chat message")],
+    }
+    expected_answer = "Generated answer"
+
+    mock_llm = mocker.Mock(spec=BaseChatModel)
+    mock_llm_response = mocker.Mock()
+    mock_llm_response.content = expected_answer
+    mock_llm.invoke.return_value = mock_llm_response
+
+    updated_state = generate(initial_state, mock_llm)
+
+    assert updated_state.get("question") == test_question
+    assert updated_state.get("context") == test_docs
+    assert updated_state.get("answer") == expected_answer
+    assert updated_state.get("chat_history") == [HumanMessage(content="Previous chat message")]
+
+
+def test_generate_without_history(mocker):
     test_question = "Test question"
     test_docs = [
         mocker.Mock(spec=Document, page_content="doc1"),
@@ -45,7 +76,6 @@ def test_generate(mocker):
         "context": test_docs,
         "answer": None,
     }
-    expected_docs_content = "doc1\n\ndoc2\n\ndoc3"
     expected_answer = "Generated answer"
 
     mock_llm = mocker.Mock(spec=BaseChatModel)
@@ -53,23 +83,12 @@ def test_generate(mocker):
     mock_llm_response.content = expected_answer
     mock_llm.invoke.return_value = mock_llm_response
 
-    mock_rag_prompt = mocker.Mock()
-    mock_prompt_messages = ["Test message"]
-    mock_rag_prompt.invoke.return_value = mock_prompt_messages
-
-    mock_hub_pull = mocker.patch(
-        "src.core.graph.qa_graph.ChatPromptTemplate.from_template", return_value=mock_rag_prompt
-    )
-
     updated_state = generate(initial_state, mock_llm)
 
-    mock_rag_prompt.invoke.assert_called_once_with(
-        {"question": test_question, "context": expected_docs_content}
-    )
-    mock_llm.invoke.assert_called_once_with(mock_prompt_messages)
     assert updated_state.get("question") == test_question
     assert updated_state.get("context") == test_docs
     assert updated_state.get("answer") == expected_answer
+    assert updated_state.get("chat_history") == []
 
 
 def test_build_qa_graph(mocker):

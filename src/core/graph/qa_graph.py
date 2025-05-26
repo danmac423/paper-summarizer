@@ -21,9 +21,7 @@ class GraphState(TypedDict):
     chat_history: Optional[List[BaseMessage]]
 
 
-def retrieve(
-    state: GraphState, vector_store: VectorStore, k_retrieved_docs: int = 3
-) -> GraphState:
+def retrieve(state: GraphState, vector_store: VectorStore, k_retrieved_docs: int = 3) -> GraphState:
     """
     Retrieve relevant documents from the vector store based on the question.
     Args:
@@ -96,9 +94,7 @@ def build_qa_graph(vector_store: VectorStore, llm: BaseChatModel) -> CompiledSta
     """
     graph_builder = StateGraph(GraphState)
 
-    graph_builder.add_node(
-        "retrieve", lambda state: retrieve(state, vector_store, K_RETRIEVED_DOCS)
-    )
+    graph_builder.add_node("retrieve", lambda state: retrieve(state, vector_store, K_RETRIEVED_DOCS))
     graph_builder.add_node("generate", lambda state: generate(state, llm))
 
     graph_builder.add_edge(START, "retrieve")

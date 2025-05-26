@@ -2,7 +2,6 @@ import pytest
 
 from src.core.models.embedding import EmbeddingError, EmbeddingModel
 from src.core.utils.singleton_meta import SingletonMeta
-from src.config import EMBEDDING_MODEL_NAME
 
 
 @pytest.fixture(autouse=True)
