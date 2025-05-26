@@ -1,7 +1,10 @@
-from langchain_core.prompts import ChatPromptTemplate
+from typing import Optional
+
 from langchain.vectorstores import VectorStore
 from langchain_core.documents import Document
 from langchain_core.language_models.chat_models import BaseChatModel
+from langchain_core.messages import BaseMessage
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langgraph.graph import END, START, StateGraph
 from langgraph.graph.state import CompiledStateGraph
 from typing_extensions import List, TypedDict
@@ -15,6 +18,7 @@ class GraphState(TypedDict):
     question: str
     context: List[Document]
     answer: str
+    chat_history: Optional[List[BaseMessage]]
 
 
 def retrieve(
@@ -45,25 +49,39 @@ def generate(state: GraphState, llm: BaseChatModel) -> GraphState:
     """
     question = state["question"]
     context = state["context"]
+    chat_history = state.get("chat_history", [])
 
     docs_content = "\n\n".join(doc.page_content for doc in context)
 
-    rag_prompt_template = """
-    You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. 
-    If you don't know the answer, just say that you don't know. Use ten sentences maximum and keep the answer concise.
-    Question: {question}
-    Context: {context}
-    Answer:
-    """
-    rag_prompt = ChatPromptTemplate.from_template(rag_prompt_template)
+    rag_prompt_messages = [
+        (
+            "system",
+            """You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the user's question:
+Context: {context}
 
-    messages = rag_prompt.invoke({"question": question, "context": docs_content})
+If you don't know the answer, just say that you don't know. Use ten sentences maximum and keep the answer concise.
+Consider the previous conversation history to provide a conversational and context-aware response.
+Avoid repeating information if it was already discussed in the chat history, unless the user explicitly asks for clarification or repetition.
+Base your answer primarily on the provided context for the current question.""",
+        ),
+        MessagesPlaceholder(variable_name="chat_history", optional=True),
+        ("human", "{question}"),
+    ]
+
+    rag_prompt = ChatPromptTemplate.from_messages(rag_prompt_messages)
+    prompt_input = {"question": question, "context": docs_content}
+    if chat_history:
+        prompt_input["chat_history"] = chat_history
+
+    messages = rag_prompt.invoke(prompt_input)
+
     response = llm.invoke(messages)
 
     return GraphState(
         question=question,
         context=context,
         answer=response.content,
+        chat_history=chat_history,
     )
 
 

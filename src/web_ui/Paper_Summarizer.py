@@ -5,7 +5,6 @@ from src.core.services.summary_service import generate_summary
 from src.web_ui.state import initialize_session_state
 from src.web_ui.ui import render_intro, render_sidebar
 
-
 initialize_session_state()
 
 st.set_page_config(page_title="Paper Summarizer", layout="wide")

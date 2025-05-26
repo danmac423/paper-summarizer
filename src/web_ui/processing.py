@@ -6,10 +6,10 @@ import streamlit as st
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from transformers import AutoTokenizer
 
-from src.core.data_processing.document_processor import DocumentProcessor
-from src.core.models.embedding import EmbeddingModel
-from src.core.data_processing.text_extractor import MarkerTextExtractor
 from src.config import CHUNK_OVERLAP, CHUNK_SIZE, DEVICE, EMBEDDING_MODEL_NAME, SEPARATORS
+from src.core.data_processing.document_processor import DocumentProcessor
+from src.core.data_processing.text_extractor import MarkerTextExtractor
+from src.core.models.embedding import EmbeddingModel
 
 
 def process_uploaded_file(uploaded_file: BytesIO):

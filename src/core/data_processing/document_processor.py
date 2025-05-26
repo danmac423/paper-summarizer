@@ -1,8 +1,8 @@
 from langchain_community.vectorstores import FAISS
 from langchain_text_splitters import TextSplitter
 
-from src.core.models.embedding import EmbeddingModel
 from src.core.exceptions import VectorStoreError
+from src.core.models.embedding import EmbeddingModel
 
 
 class DocumentProcessor:

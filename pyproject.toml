@@ -31,6 +31,7 @@ dependencies = [
     "evaluate>=0.4.3",
     "setuptools>=80.8.0",
     "wheel>=0.45.1",
+    "ruff>=0.11.11",
 ]
 
 [tool.pytest.ini_options]
@@ -38,6 +39,18 @@ filterwarnings =[
     "ignore:Support for class-based `config` is deprecated.*:DeprecationWarning:pydantic.*",
 ]
 
+[tool.ruff]
+line-length = 120
+indent-width = 4
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "W"]
+extend-select = ["I"]
+ignore = []
+
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = []
 
 [tool.coverage.run]
 source = ["src/core"]

@@ -1,11 +1,12 @@
 import streamlit as st
-from langchain import hub
+from langchain_community.chat_message_histories import (
+    StreamlitChatMessageHistory,
+)
 
 from src.core.models.llm import get_chat_llm
 from src.core.services.qa_service import generate_qa_answer
 from src.web_ui.state import initialize_session_state
 from src.web_ui.ui import render_intro, render_sidebar
-
 
 initialize_session_state()
 
@@ -20,14 +21,14 @@ if st.session_state.processing_error:
 if not st.session_state.processed_article:
     render_intro()
 
-
 if st.session_state.processed_article:
     api_key = st.session_state.llm_config.get("api_key")
     llm_model_name = st.session_state.llm_config.get("llm_model_name")
     processed_article = st.session_state.processed_article
-    history = st.session_state.chat_history
 
-    for message in history.messages:
+    chat_history: StreamlitChatMessageHistory = st.session_state.chat_history
+
+    for message in chat_history.messages:
         st.chat_message(message.type).write(message.content)
 
     if not api_key:
@@ -44,25 +45,25 @@ if st.session_state.processed_article:
     if prompt := st.chat_input(
         placeholder="Ask a question about the paper", disabled=not can_prompt
     ):
-        history.add_user_message(prompt)
         st.chat_message("user").write(prompt)
 
         with st.chat_message("ai"):
             with st.spinner("Thinking..."):
                 try:
-                    rag_prompt = hub.pull("rlm/rag-prompt")
                     llm = get_chat_llm(model_name=llm_model_name, api_key=api_key)
 
                     answer = generate_qa_answer(
                         vec=processed_article["vector_store"],
                         llm=llm,
                         question=prompt,
+                        history=chat_history.messages,
                     )
 
-                    history.add_ai_message(answer)
+                    chat_history.add_user_message(prompt)
+                    chat_history.add_ai_message(answer)
                     st.write(answer)
                 except Exception as e:
                     answer = "Error occured while generating the answer."
-                    history.add_ai_message(answer)
+                    chat_history.add_ai_message(answer)
                     st.write(answer)
                     st.error(e)
