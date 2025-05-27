@@ -2,7 +2,9 @@ import streamlit as st
 from langchain_community.chat_message_histories import (
     StreamlitChatMessageHistory,
 )
+from langchain_core.messages import trim_messages
 
+from src.config import HISTORY_MAX_LENGTH
 from src.core.models.llm import get_chat_llm
 from src.core.services.qa_service import generate_qa_answer
 from src.web_ui.state import initialize_session_state
@@ -32,19 +34,11 @@ if st.session_state.processed_article:
         st.chat_message(message.type).write(message.content)
 
     if not api_key:
-        st.error(
-            "API Key is missing. Please provide it in the sidebar to ask about the paper."
-        )
+        st.error("API Key is missing. Please provide it in the sidebar to ask about the paper.")
 
-    can_prompt = (
-        api_key
-        and processed_article is not None
-        and processed_article.get("vector_store") is not None
-    )
+    can_prompt = api_key and processed_article is not None and processed_article.get("vector_store") is not None
 
-    if prompt := st.chat_input(
-        placeholder="Ask a question about the paper", disabled=not can_prompt
-    ):
+    if prompt := st.chat_input(placeholder="Ask a question about the paper", disabled=not can_prompt):
         st.chat_message("user").write(prompt)
 
         with st.chat_message("ai"):
@@ -52,11 +46,15 @@ if st.session_state.processed_article:
                 try:
                     llm = get_chat_llm(model_name=llm_model_name, api_key=api_key)
 
+                    messages = trim_messages(
+                        chat_history.messages, strategy="last", token_counter=len, max_tokens=HISTORY_MAX_LENGTH
+                    )
+
                     answer = generate_qa_answer(
                         vec=processed_article["vector_store"],
                         llm=llm,
                         question=prompt,
-                        history=chat_history.messages,
+                        history=messages,
                     )
 
                     chat_history.add_user_message(prompt)

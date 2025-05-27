@@ -16,3 +16,5 @@ CHUNK_OVERLAP = 64
 K_RETRIEVED_DOCS = 5
 
 EMBEDDING_MODEL_NAME = "Lajavaness/bilingual-embedding-large"
+
+HISTORY_MAX_LENGTH = 10
