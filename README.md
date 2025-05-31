@@ -67,8 +67,8 @@ The application follows a multi-step process to analyze and interact with resear
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://gitlab-stud.elka.pw.edu.pl/dmachnia/projekt-llm.git
-    cd projekt-llm
+    git clone https://github.com/danmac423/paper-summarizer.git
+    cd paper-summarizer
     ```
 
 2.  **Create a virtual environment and install dependencies:**
