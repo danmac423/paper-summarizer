@@ -1,0 +1,35 @@
+{
+    "Alibaba-NLP/gte-multilingual-base": {
+        "mean_mrr": 0.5897217227217226,
+        "mean_recalls_at_k": {
+            "1": 0.18738095238095237,
+            "3": 0.3944285714285714,
+            "5": 0.5119523809523809,
+            "10": 0.6958333333333333
+        },
+        "k_retrieval_search_limit": 15,
+        "evaluated_questions_count": 50
+    },
+    "intfloat/multilingual-e5-large-instruct": {
+        "mean_mrr": 0.6495000000000001,
+        "mean_recalls_at_k": {
+            "1": 0.2635238095238095,
+            "3": 0.41359523809523807,
+            "5": 0.5342619047619048,
+            "10": 0.7215238095238096
+        },
+        "k_retrieval_search_limit": 15,
+        "evaluated_questions_count": 50
+    },
+    "Lajavaness/bilingual-embedding-large": {
+        "mean_mrr": 0.675062271062271,
+        "mean_recalls_at_k": {
+            "1": 0.2576904761904762,
+            "3": 0.5042619047619047,
+            "5": 0.6026190476190476,
+            "10": 0.760547619047619
+        },
+        "k_retrieval_search_limit": 15,
+        "evaluated_questions_count": 50
+    }
+}

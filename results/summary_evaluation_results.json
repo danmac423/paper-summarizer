@@ -1,0 +1,22 @@
+{
+    "gpt-4.1-mini": {
+        "average_rouge1_fmeasure": 0.49970702878941164,
+        "average_rouge2_fmeasure": 0.18538110002292313,
+        "average_rougeL_fmeasure": 0.2657867815408131,
+        "average_rougeLsum_fmeasure": 0.35767132566050336,
+        "average_bleu": 0.09263528744089856,
+        "average_bertscore_p": 0.8857688784599305,
+        "average_bertscore_r": 0.8389960885047912,
+        "average_bertscore_f1": 0.8617164134979248
+    },
+    "gemini-2.0-flash-lite": {
+        "average_rouge1_fmeasure": 0.44184189818845854,
+        "average_rouge2_fmeasure": 0.15295320233177495,
+        "average_rougeL_fmeasure": 0.2327056648636297,
+        "average_rougeLsum_fmeasure": 0.32307884575427737,
+        "average_bleu": 0.06924879410494951,
+        "average_bertscore_p": 0.8877429366111755,
+        "average_bertscore_r": 0.8173668503761291,
+        "average_bertscore_f1": 0.8510661244392395
+    }
+}
